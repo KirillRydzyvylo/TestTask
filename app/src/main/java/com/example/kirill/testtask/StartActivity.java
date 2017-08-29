@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 
 import com.example.kirill.testtask.realm.Shot;
@@ -54,7 +55,10 @@ public class StartActivity extends AppCompatActivity implements SwipeRefreshLayo
 
 
         presenter.showData();
-        //presenter.loadDate("2017-08-25");
+
+        if(shots.size() == 0){
+            Toast.makeText(this,"Выполните загрузку шотов, путем движения вних  по экрану телефона ",Toast.LENGTH_LONG).show();
+        }
 
     }
 
