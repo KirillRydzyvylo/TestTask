@@ -1,22 +1,13 @@
 package com.example.kirill.testtask;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.kirill.testtask.data.ShotData;
 import com.example.kirill.testtask.realm.Shot;
 
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.ListIterator;
-
-import io.realm.Realm;
-import io.realm.RealmResults;
 import io.realm.Sort;
-import retrofit2.Retrofit;
 
 /**
  * Created by kirill on 21.08.17.

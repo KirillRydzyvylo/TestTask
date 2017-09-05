@@ -1,9 +1,6 @@
 package com.example.kirill.testtask;
 
-import android.app.Activity;
-import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.kirill.testtask.data.ShotData;
 import com.example.kirill.testtask.realm.Shot;
