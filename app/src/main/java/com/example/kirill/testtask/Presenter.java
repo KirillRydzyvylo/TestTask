@@ -23,7 +23,7 @@ import retrofit2.Response;
  */
 
 public class Presenter {
-    private final long MILLISECONDS_A_DAY= 86400000;
+    private static final long MILLISECONDS_A_DAY= 86400000;
     private StartActivity activity;
     private Model model;
     private SimpleDateFormat simpleDateFormat;
@@ -51,7 +51,14 @@ public class Presenter {
             loadDay = new Date().getTime();
         }
         Log.e("load",Long.toString(loadDay));
-        loadData(simpleDateFormat.format(new Date(countNextDay(loadDay))));
+
+        try{
+            loadData(simpleDateFormat.format(new Date(countNextDay(loadDay))));
+        }
+        catch(IllegalArgumentException e){
+            e.printStackTrace();
+            loadData(simpleDateFormat.format(new Date()));
+        }
 
     }
 
@@ -59,13 +66,22 @@ public class Presenter {
     public void loadPreviousShots(){
         Log.e("Size",Integer.toString(Model.getDbSize()));
         if(Model.getDbSize() < 50) {
+
             try {
                 loadDay = Model.getMinDayLoader();
             } catch (Exception e) {
                 loadDay = new Date().getTime();
             }
 
-            loadData(simpleDateFormat.format(new Date(countPreviousDay(loadDay))));
+            try{
+                loadData(simpleDateFormat.format(new Date(countPreviousDay(loadDay))));
+            }
+            catch(IllegalArgumentException e){
+                e.printStackTrace();
+                loadData(simpleDateFormat.format(new Date()));
+            }
+
+
         }
         else{
             Log.e("Error"," пределе количества сооб shots");
@@ -75,8 +91,7 @@ public class Presenter {
 
 
     public  void  loadData(final String date){
-//        Log.e("SimpleFormat",date);
-//        Log.e("Equals",Boolean.toString(date.equals("2017-08-29")));
+
         fullDateFormat = new SimpleDateFormat("yyyy-MM-ddhh:mm:ss");
         App.getApi().getData("2a41fea1d3b9f39dd8637388ab84c69f333153fac82959404eb3a1b72a5d6af2", date)
                 .enqueue(new Callback<List<ShotData>>() {
@@ -89,15 +104,25 @@ public class Presenter {
                                 Shot shot = new Shot();
                                 shot.setId(sd.getId());
                                 shot.setTitle(sd.getTitle());
-                                shot.setDescription(fixDescriptions(sd.getDescription()));
+
+                                try{
+                                    shot.setDescription(fixDescriptions(sd.getDescription()));
+                                }
+                                catch (NullPointerException e){
+                                    e.printStackTrace();
+                                    shot.setDescription("");
+                                }
+
                                 shot.setTeaser(sd.getImages().getTeaser());
                                 shot.setNormal(sd.getImages().getNormal());
                                 shot.setHidpi(sd.getImages().getHidpi());
+
                                 try {
                                     shot.setDayLoad(fullDateFormat.parse(sd.getUpdate().substring(0,10).concat(sd.getUpdate().substring(11,19))).getTime());
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
+
                                 Log.e("Shot",shot.toString());
                                 shots.add(shot);
                             }
@@ -146,21 +171,30 @@ public class Presenter {
     }
 
 
-    private  long countPreviousDay(long day){
+
+    private  static long countPreviousDay(long day){
+        if( day < 0) {
+            throw new IllegalArgumentException();
+        }
         return ((day - (day % MILLISECONDS_A_DAY)) - MILLISECONDS_A_DAY);
     }
 
-    private long countNextDay(long day){
+
+
+    private static long countNextDay(long day){
+        if( day < 0) {
+            throw new IllegalArgumentException();
+        }
         return ((day - (day % MILLISECONDS_A_DAY)) + MILLISECONDS_A_DAY);
     }
 
-    private String fixDescriptions(String jsonTitle){
-        if(jsonTitle!=null){
-            return jsonTitle.replaceAll("(?:<).*?(?:>)|\\n"," ").replaceAll("\\s{2,}"," ");
+
+
+    private static String fixDescriptions(String jsonDescription){
+        if(jsonDescription == null){
+            throw new NullPointerException();
         }
-        else {
-            return null;
-        }
+        return jsonDescription.replaceAll("(?:<).*?(?:>)|\\n"," ").replaceAll("\\s{2,}"," ");
     }
 
 
